@@ -1,0 +1,1 @@
+1.需要一套sprite 图片，run 和jump两套动作
