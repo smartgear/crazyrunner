@@ -30,10 +30,18 @@
         }
 
         var cursors;
-        var d;
+        var man;
+        var manpostxt;
         var m;
+        var score=0;
+        var coins;
+        var coinspos;
+        var scoreText;
+
 
         function create() {
+
+            game.physics.startSystem(Phaser.Physics.ARCADE);
 
             //  Modify the world and camera bounds
             game.world.setBounds(0, 0, 400, 40000);
@@ -41,115 +49,86 @@
 
             bg = game.add.tileSprite(0, 0, 800, 40000, 'background');
 
-            for (var i = 0; i < 300; i++) {
-                m = game.add.sprite(game.rnd.integerInRange(200, 600), game.world.randomY, 'mushroom');
-                m.anchor.setTo(0.5, 0.5);
+            coins = game.add.group();
+            coinspos = [];
+            coins.enableBody = true;
+            coins.physicsBodyType = Phaser.Physics.ARCADE;
+            for (var i = 0; i < 50; i++) {
+                m = coins.create(game.rnd.integerInRange(200, 600), game.world.randomY, 'mushroom');
+                m.anchor.setTo(0.5, 1);
+                m.body.bounce.set(1);
+                m.body.immovable = true;
+                coinspos[i] = game.add.text();
             }
 
-            game.add.text(600, 800, "- phaser -", {font: "32px Arial", fill: "#330088", align: "center"});
-
-            d = game.add.sprite(400, 0, 'phaser');
-            d.anchor.setTo(0.5, 1);
-
-            game.physics.enable(d, Phaser.Physics.ARCADE);
-            d.input.enableDrag();
-
-            //  This will lock the sprite so it can only be dragged horizontally, not vertically
-            d.input.allowVerticalDrag = false;
-
+            man = game.add.sprite(400, 0, 'phaser');
+            man.anchor.setTo(0.5, 1);
+            manpostxt = game.add.text();
+            scoreText = game.add.text(32, 550, 'score: 0', { font: "20px Arial", fill: "#ffffff", align: "left" });
+            game.physics.enable(man, Phaser.Physics.ARCADE);
         }
 
         function update() {
             game.camera.y -= 10;
-//            d.angle += 1;
-            d.position.y = game.camera.y + 600
+            man.y = game.camera.y + 600
 
 
             //  move when you click on mobile
             if (game.input.pointer1.isDown) {
                 //  400 is the speed it will move towards the mouse
-                game.physics.arcade.moveToXY(d,game.input.pointer1.x, d.position.y, 400);
+                game.physics.arcade.moveToXY(man,game.input.pointer1.x, man.position.y, 1000);
 
                 //  if it's overlapping the mouse, don't move any more
-                if (Phaser.Rectangle.contains(d.body, game.input.pointer1.x ,d.position.y))
+                if (Phaser.Rectangle.contains(man.body, game.input.pointer1.x ,man.position.y))
                 {
-                    d.body.velocity.setTo(0, 0);
+                    man.body.velocity.setTo(0, 0);
                 }
             }
             else {
-                d.body.velocity.setTo(0, 0);
+                man.body.velocity.setTo(0, 0);
             }
 
             //  move when you click on mobile
-            if(game.input.mousePointer.isDown){
-                game.physics.arcade.moveToXY(d,game.input.x, d.position.y, 400);
-                if (Phaser.Rectangle.contains(d.body, game.input.x ,game.input.y))
-                {
-                    d.body.velocity.setTo(0, 0);
-                }
-            }else{
-                d.body.velocity.setTo(0, 0);
+//            if(game.input.mousePointer.isDown){
+//                game.physics.arcade.moveToXY(man,game.input.x, man.position.y, 400);
+//                if (Phaser.Rectangle.contains(man.body, game.input.x ,game.input.y))
+//                {
+//                    man.body.velocity.setTo(0, 0);
+//                }
+//            }else{
+//                man.body.velocity.setTo(0, 0);
+//            }
+            game.physics.arcade.collide(man, coins, manHitCoin, null, this);
+                for(i=0;i<50;i++){
+                eachpos =coins.getAt(i).x+ ", " + coins.getAt(i).y
+                coinspos[i].text = eachpos;
+                coinspos[i].x = coins.getAt(i).x;
+                coinspos[i].y = coins.getAt(i).y;
             }
 
-
-
-
-
-
-//            if (cursors.up.isDown)
-//            {
-//                if (cursors.up.shiftKey)
-//                {
-//                    d.angle++;
-//                }
-//                else
-//                {
-//                    game.camera.y -= 4;
-//                }
-//            }
-//            else if (cursors.down.isDown)
-//            {
-//                if (cursors.down.shiftKey)
-//                {
-//                    d.angle--;
-//                }
-//                else
-//                {
-//                    game.camera.y += 4;
-//                }
-//            }
-//
-//            if (cursors.left.isDown)
-//            {
-//                if (cursors.left.shiftKey)
-//                {
-//                    game.world.rotation -= 0.05;
-//                }
-//                else
-//                {
-//                    game.camera.x -= 4;
-//                }
-//            }
-//            else if (cursors.right.isDown)
-//            {
-//                if (cursors.right.shiftKey)
-//                {
-//                    game.world.rotation += 0.05;
-//                }
-//                else
-//                {
-//                    game.camera.x += 4;
-//                }
-//            }
+            manpostxt.text = man.x + "," + man.y;
+            manpostxt.x = man.x;
+            manpostxt.y = man.y-50;
+            scoreText.text = 'score: ' + score;
+            scoreText.y = game.camera.y;
 
         }
 
         function render() {
 
             game.debug.cameraInfo(game.camera, 32, 32);
-
+            game.debug.body(man);
+            for(i=0;i<50;i++){
+                game.debug.body(coins.getChildAt(i))
+                game.debug.bod
+            }
+//            coins.forEachAlive(game.debug.body);
         }
 
+        function manHitCoin (_man,_coin) {
+            _coin.kill();
+            score += 10;
+        }
     };
 
 </script>
