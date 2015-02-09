@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <title>hello phaser!</title>
-    <script src="_site/phaser/phaser.2.2.2.min.js"></script>
+    <script src="_site/phaser/phaser.js"></script>
 </head>
 <body>
 <div id="phaser-example" align="center"/>
@@ -53,25 +53,28 @@
             coinspos = [];
             coins.enableBody = true;
             coins.physicsBodyType = Phaser.Physics.ARCADE;
-            for (var i = 0; i < 50; i++) {
+            for (var i = 0; i < 500; i++) {
                 m = coins.create(game.rnd.integerInRange(200, 600), game.world.randomY, 'mushroom');
                 m.anchor.setTo(0.5, 1);
-                m.body.bounce.set(1);
-                m.body.immovable = true;
+//                m.body.bounce.set(1);
+//                m.body.immovable = true;
                 coinspos[i] = game.add.text();
             }
 
-            man = game.add.sprite(400, 0, 'phaser');
+            man = game.add.sprite(400, 40000, 'phaser');
+            game.physics.enable(man, Phaser.Physics.ARCADE);
             man.anchor.setTo(0.5, 1);
+            man.body.bounce.set(1);
+            man.body.immovable=true;
             manpostxt = game.add.text();
             scoreText = game.add.text(32, 550, 'score: 0', { font: "20px Arial", fill: "#ffffff", align: "left" });
-            game.physics.enable(man, Phaser.Physics.ARCADE);
+
         }
 
         function update() {
             game.camera.y -= 10;
-            man.y = game.camera.y + 600
-
+//            man.body.y = game.camera.y + 600
+            man.body.y-=10;
 
             //  move when you click on mobile
             if (game.input.pointer1.isDown) {
@@ -89,15 +92,15 @@
             }
 
             //  move when you click on mobile
-//            if(game.input.mousePointer.isDown){
-//                game.physics.arcade.moveToXY(man,game.input.x, man.position.y, 400);
-//                if (Phaser.Rectangle.contains(man.body, game.input.x ,game.input.y))
-//                {
-//                    man.body.velocity.setTo(0, 0);
-//                }
-//            }else{
-//                man.body.velocity.setTo(0, 0);
-//            }
+            if(game.input.mousePointer.isDown){
+                game.physics.arcade.moveToXY(man,game.input.x, man.position.y, 400);
+                if (Phaser.Rectangle.contains(man.body, game.input.x ,game.input.y))
+                {
+                    man.body.velocity.setTo(0, 0);
+                }
+            }else{
+                man.body.velocity.setTo(0, 0);
+            }
             game.physics.arcade.collide(man, coins, manHitCoin, null, this);
                 for(i=0;i<50;i++){
                 eachpos =coins.getAt(i).x+ ", " + coins.getAt(i).y
